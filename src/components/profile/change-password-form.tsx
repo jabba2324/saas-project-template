@@ -35,30 +35,31 @@ export function ChangePasswordForm() {
 
   async function onSubmit(data: PasswordValues) {
     setIsLoading(true);
-
-    const res = await fetch("/api/profile/password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        currentPassword: data.currentPassword,
-        newPassword: data.newPassword,
-      }),
-    });
-
-    setIsLoading(false);
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      toast({
-        title: "Could not update password",
-        description: body.error ?? "Something went wrong.",
-        variant: "destructive",
+    try {
+      const res = await fetch("/api/profile/password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        }),
       });
-      return;
-    }
 
-    toast({ title: "Password updated successfully!" });
-    reset();
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        toast({
+          title: "Could not update password",
+          description: body.error ?? "Something went wrong.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({ title: "Password updated successfully!" });
+      reset();
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (

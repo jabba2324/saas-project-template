@@ -61,7 +61,7 @@ export default async function LandingPage() {
         </h1>
 
         <p className="text-lg text-slate-500 max-w-xl mx-auto mb-10">
-          A production-ready Next.js 15 template with authentication, database,
+          A production-ready Next.js 16 template with authentication, database,
           and file storage — all wired up and ready to go.
         </p>
 
@@ -102,7 +102,7 @@ const features = [
     icon: "🔐",
     title: "Auth.js v5",
     description:
-      "Email and password authentication via Auth.js v5. Session stored in Postgres via the Drizzle adapter.",
+      "Email and password authentication via Auth.js v5. Stateless JWT sessions — no database session table required.",
   },
   {
     icon: "🗄️",
@@ -114,6 +114,6 @@ const features = [
     icon: "🖼️",
     title: "Vercel Blob",
     description:
-      "Profile picture uploads handled by Vercel Blob. Public CDN URLs stored back in the database automatically.",
+      "Profile picture uploads stored privately in Vercel Blob. Served securely via an authenticated API route.",
   },
 ];

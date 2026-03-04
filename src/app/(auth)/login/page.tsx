@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/login-form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +25,9 @@ export default function LoginPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <LoginForm />
+              <Suspense>
+                <LoginForm />
+              </Suspense>
             </CardContent>
             <CardFooter className="justify-center text-sm text-muted-foreground">
               Don&apos;t have an account?&nbsp;

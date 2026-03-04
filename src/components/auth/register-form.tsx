@@ -37,27 +37,28 @@ export function RegisterForm() {
 
   async function onSubmit(data: RegisterValues) {
     setIsLoading(true);
-
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: data.name, email: data.email, password: data.password }),
-    });
-
-    setIsLoading(false);
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      toast({
-        title: "Registration failed",
-        description: body.error ?? "Something went wrong.",
-        variant: "destructive",
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: data.name, email: data.email, password: data.password }),
       });
-      return;
-    }
 
-    toast({ title: "Account created!", description: "You can now sign in." });
-    router.push("/login");
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        toast({
+          title: "Registration failed",
+          description: body.error ?? "Something went wrong.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({ title: "Account created!", description: "You can now sign in." });
+      router.push("/login");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (

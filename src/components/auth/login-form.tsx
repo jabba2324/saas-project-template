@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,7 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,20 +32,31 @@ export function LoginForm() {
 
   async function onSubmit(data: LoginValues) {
     setIsLoading(true);
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
-    setIsLoading(false);
+    try {
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
 
-    if (result?.error) {
-      toast({ title: "Sign in failed", description: "Invalid email or password.", variant: "destructive" });
-      return;
+      if (result?.error) {
+        toast({
+          title: "Sign in failed",
+          description: "Invalid email or password.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate callbackUrl is same-origin before using it
+      const raw = searchParams.get("callbackUrl") ?? "";
+      const safePath =
+        raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
+      router.push(safePath);
+      router.refresh();
+    } finally {
+      setIsLoading(false);
     }
-
-    router.push("/dashboard");
-    router.refresh();
   }
 
   return (

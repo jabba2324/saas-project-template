@@ -16,7 +16,13 @@ export default async function ProfilePage() {
   if (!session?.user?.id) redirect("/login");
 
   const [user] = await db
-    .select()
+    .select({
+      name: users.name,
+      email: users.email,
+      image: users.image,
+      password: users.password,
+      createdAt: users.createdAt,
+    })
     .from(users)
     .where(eq(users.id, session.user.id))
     .limit(1);
@@ -35,7 +41,7 @@ export default async function ProfilePage() {
         <CardHeader>
           <CardTitle>Profile picture</CardTitle>
           <CardDescription>
-            Upload a photo — stored in Vercel Blob and served from the CDN.
+            Upload a photo — stored privately in Vercel Blob and served via API.
           </CardDescription>
         </CardHeader>
         <CardContent>
