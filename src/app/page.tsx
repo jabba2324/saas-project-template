@@ -2,7 +2,8 @@ import Link from "next/link";
 import { auth } from "@/auth";
 
 export default async function LandingPage() {
-  const session = await auth();
+  // Gracefully handle missing env vars during initial setup
+  const session = await auth().catch(() => null);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
@@ -11,7 +12,7 @@ export default async function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <span className="font-bold text-lg tracking-tight">SaaS Template</span>
           <nav className="flex items-center gap-3">
-            {session ? (
+            {session?.user ? (
               <>
                 <Link
                   href="/dashboard"
@@ -66,13 +67,13 @@ export default async function LandingPage() {
 
         <div className="flex items-center justify-center gap-4 flex-wrap">
           <Link
-            href={session ? "/dashboard" : "/register"}
+            href={session?.user ? "/dashboard" : "/register"}
             className="bg-slate-900 text-white px-8 py-3 rounded-lg font-medium hover:bg-slate-700 transition-colors"
           >
-            {session ? "Go to dashboard" : "Start for free"}
+            {session?.user ? "Go to dashboard" : "Start for free"}
           </Link>
           <a
-            href="https://github.com"
+            href="https://github.com/jabba2324/saas-project-template"
             target="_blank"
             rel="noopener noreferrer"
             className="border border-slate-200 text-slate-700 px-8 py-3 rounded-lg font-medium hover:bg-slate-50 transition-colors"
