@@ -33,3 +33,4 @@ next-env.d.ts
 
 # Drizzle migrations (optional — remove if you want to commit migrations)
 src/lib/db/migrations/
+.env*.local
