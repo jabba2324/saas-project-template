@@ -2,22 +2,23 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, Loader2 } from "lucide-react";
 
 interface AvatarUploadProps {
-  currentImage: string | null;
+  hasImage: boolean;
   userName: string;
 }
 
-export function AvatarUpload({ currentImage, userName }: AvatarUploadProps) {
+export function AvatarUpload({ hasImage, userName }: AvatarUploadProps) {
   const router = useRouter();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(currentImage);
+  // Use a cache-buster so the browser re-fetches after a new upload
+  const [cacheBuster, setCacheBuster] = useState(() => Date.now());
+  const [showImage, setShowImage] = useState(hasImage);
   const [isPending, startTransition] = useTransition();
 
   const initials = userName
@@ -30,10 +31,6 @@ export function AvatarUpload({ currentImage, userName }: AvatarUploadProps) {
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Local preview
-    const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
 
     startTransition(async () => {
       const formData = new FormData();
@@ -51,13 +48,11 @@ export function AvatarUpload({ currentImage, userName }: AvatarUploadProps) {
           description: body.error ?? "Could not upload image.",
           variant: "destructive",
         });
-        setPreview(currentImage);
         return;
       }
 
-      const { url } = await res.json();
-      setPreview(url);
-
+      setShowImage(true);
+      setCacheBuster(Date.now());
       toast({ title: "Profile picture updated!" });
       router.refresh();
     });
@@ -67,9 +62,12 @@ export function AvatarUpload({ currentImage, userName }: AvatarUploadProps) {
     <div className="flex items-center gap-6">
       <div className="relative">
         <Avatar className="h-20 w-20">
-          {preview ? (
-            <AvatarImage src={preview} alt={userName} />
-          ) : null}
+          {showImage && (
+            <AvatarImage
+              src={`/api/profile/avatar?t=${cacheBuster}`}
+              alt={userName}
+            />
+          )}
           <AvatarFallback className="text-xl">{initials}</AvatarFallback>
         </Avatar>
         {isPending && (

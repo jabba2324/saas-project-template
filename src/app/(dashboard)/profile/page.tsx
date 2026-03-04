@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -12,10 +13,12 @@ export const metadata = { title: "Profile — SaaS Template" };
 export default async function ProfilePage() {
   const session = await auth();
 
+  if (!session?.user?.id) redirect("/login");
+
   const [user] = await db
     .select()
     .from(users)
-    .where(eq(users.id, session!.user!.id!))
+    .where(eq(users.id, session.user.id))
     .limit(1);
 
   const isCredentialUser = Boolean(user?.password);
@@ -37,7 +40,7 @@ export default async function ProfilePage() {
         </CardHeader>
         <CardContent>
           <AvatarUpload
-            currentImage={user?.image ?? null}
+            hasImage={Boolean(user?.image)}
             userName={user?.name ?? user?.email ?? "User"}
           />
         </CardContent>
