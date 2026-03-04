@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { put, get } from "@vercel/blob";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
@@ -8,7 +8,7 @@ import { users } from "@/lib/db/schema";
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
-// Serve the current user's avatar by proxying the private blob
+// Serve the current user's avatar from private blob storage
 export async function GET() {
   const session = await auth();
 
@@ -26,19 +26,15 @@ export async function GET() {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const res = await fetch(user.image, {
-    headers: {
-      authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
-    },
-  });
+  const result = await get(user.image, { access: "private" });
 
-  if (!res.ok) {
+  if (!result?.stream) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  return new NextResponse(res.body, {
+  return new NextResponse(result.stream, {
     headers: {
-      "Content-Type": res.headers.get("Content-Type") ?? "image/jpeg",
+      "Content-Type": result.headers.get("Content-Type") ?? "image/jpeg",
       "Cache-Control": "private, max-age=3600",
     },
   });
@@ -76,9 +72,10 @@ export async function POST(req: NextRequest) {
   const extension = file.type.split("/")[1];
   const pathname = `avatars/${session.user.id}.${extension}`;
 
-  // Private store — access is controlled at the store level, not per-upload
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const blob = await put(pathname, file, { addRandomSuffix: false } as any);
+  const blob = await put(pathname, file, {
+    access: "private",
+    addRandomSuffix: false,
+  });
 
   await db
     .update(users)
