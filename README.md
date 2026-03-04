@@ -1,16 +1,16 @@
 # Next.js SaaS Template
 
-A production-ready Next.js 15 SaaS starter built on Vercel's native services.
+A production-ready Next.js 16 SaaS starter built on Vercel's native services.
 
 ## Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 15 (App Router, TypeScript) |
+| Framework | Next.js 16 (App Router, TypeScript, Turbopack) |
 | Auth | [Auth.js v5](https://authjs.dev/) — Email / Password |
-| Database | [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres) (Neon) + [Drizzle ORM](https://orm.drizzle.team/) |
+| Database | [Neon](https://neon.tech/) (via Vercel integration) + [Drizzle ORM](https://orm.drizzle.team/) |
 | File storage | [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) |
-| UI | [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) |
+| UI | [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) |
 
 ## Pages
 
@@ -38,7 +38,7 @@ npm install
 
 You need two Vercel storage services linked to your project:
 
-1. **Vercel Postgres** — create a store in the [Vercel dashboard](https://vercel.com/dashboard) under Storage.
+1. **Neon Postgres** — create a store in the [Vercel dashboard](https://vercel.com/dashboard) under Storage.
 2. **Vercel Blob** — create a store in the Vercel dashboard under Storage.
 
 ### 3. Pull environment variables
@@ -61,7 +61,7 @@ AUTH_SECRET=             # openssl rand -base64 32
 npm run db:push
 ```
 
-This creates all required tables (`user`, `account`, `session`, `verificationToken`) in your Vercel Postgres database.
+This creates the `user` table in your Neon database.
 
 ### 5. Run the dev server
 
@@ -95,18 +95,18 @@ src/
 │   └── api/
 │       ├── auth/[...nextauth] # Auth.js handler
 │       ├── auth/register      # POST — create account
-│       ├── profile/avatar     # POST — upload via Vercel Blob
+│       ├── profile/avatar     # GET/POST — serve/upload via Vercel Blob
 │       └── profile/password   # POST — change password
+├── auth.ts                    # Auth.js v5 config
 ├── components/
 │   ├── auth/                  # Login + register forms
 │   ├── profile/               # Avatar upload + password form
 │   └── ui/                    # shadcn/ui primitives
 └── lib/
-    ├── db/index.ts            # Drizzle client
+    ├── db/index.ts            # Drizzle + Neon client
     ├── db/schema.ts           # Table definitions
     └── utils.ts               # cn() helper
 
-auth.ts                        # Auth.js v5 config
 middleware.ts                  # Route protection
 drizzle.config.ts
 ```
@@ -117,7 +117,7 @@ drizzle.config.ts
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Start dev server |
+| `npm run dev` | Start dev server (Turbopack) |
 | `npm run build` | Production build |
 | `npm run db:push` | Push schema changes to the database |
 | `npm run db:studio` | Open Drizzle Studio (visual DB browser) |
