@@ -47,9 +47,7 @@ export default async function DashboardLayout({
               <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
                 <Link href="/profile">
                   <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-transparent hover:ring-slate-300 transition-all">
-                    {session.user?.image && (
-                      <AvatarImage src="/api/profile/avatar" alt={session.user?.name ?? "User"} />
-                    )}
+                    <AvatarImage src="/api/profile/avatar" alt={session.user?.name ?? "User"} />
                     <AvatarFallback className="text-xs">{initials}</AvatarFallback>
                   </Avatar>
                 </Link>
